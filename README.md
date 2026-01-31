@@ -1,22 +1,22 @@
-# 🚀 QueueZen
+# QueueZen
 
 **QueueZen** is a full-stack, real-time intelligent queue management system designed to reduce waiting time and improve efficiency in public service environments like banks, hospitals, and government offices.
 
 ---
 
-## ✨ Features
+## Features✨
 
-- 🔴 Real-time queue updates using **Socket.IO**
-- 👥 Public queue join (no login required)
-- 🧑‍💼 Secure admin dashboard with **JWT authentication**
-- ⏭️ Call next / skip tokens
-- 🧹 Clear queue (admin-only)
-- ⏱️ Estimated waiting time & position
-- 🎨 Modern UI with animations, status badges & branding
+- Real-time queue updates using **Socket.IO**
+- Public queue join (no login required)
+- Secure admin dashboard with **JWT authentication**
+- Call next / skip tokens
+- Clear queue (admin-only)
+- Estimated waiting time & position
+- Modern UI with animations, status badges & branding
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack🛠️ 
 
 **Frontend**
 - React
@@ -33,80 +33,7 @@
 
 ---
 
-## 📦 Project Structure
-# 🚀 QueueZen
-
-**QueueZen** is a full-stack, real-time intelligent queue management system designed to reduce waiting time and improve efficiency in public service environments like banks, hospitals, and government offices.
-
----
-
-## ✨ Features
-
-- 🔴 Real-time queue updates using **Socket.IO**
-- 👥 Public queue join (no login required)
-- 🧑‍💼 Secure admin dashboard with **JWT authentication**
-- ⏭️ Call next / skip tokens
-- 🧹 Clear queue (admin-only)
-- ⏱️ Estimated waiting time & position
-- 🎨 Modern UI with animations, status badges & branding
-
----
-
-## 🛠️ Tech Stack
-
-**Frontend**
-- React
-- Axios
-- Socket.IO Client
-
-**Backend**
-- Node.js
-- Express.js
-- MongoDB (Atlas)
-- Mongoose
-- JWT Authentication
-- Socket.IO
-
----
-
-## 📦 Project Structure
-
-# 🚀 QueueZen
-
-**QueueZen** is a full-stack, real-time intelligent queue management system designed to reduce waiting time and improve efficiency in public service environments like banks, hospitals, and government offices.
-
----
-
-## ✨ Features
-
-- 🔴 Real-time queue updates using **Socket.IO**
-- 👥 Public queue join (no login required)
-- 🧑‍💼 Secure admin dashboard with **JWT authentication**
-- ⏭️ Call next / skip tokens
-- 🧹 Clear queue (admin-only)
-- ⏱️ Estimated waiting time & position
-- 🎨 Modern UI with animations, status badges & branding
-
----
-
-## 🛠️ Tech Stack
-
-**Frontend**
-- React
-- Axios
-- Socket.IO Client
-
-**Backend**
-- Node.js
-- Express.js
-- MongoDB (Atlas)
-- Mongoose
-- JWT Authentication
-- Socket.IO
-
----
-
-## 📦 Project Structure
+## Project Structure📦 
 queuezen/
 │
 ├── frontend/ # React app
