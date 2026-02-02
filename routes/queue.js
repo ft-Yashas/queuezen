@@ -1,84 +1,111 @@
 const express = require("express");
 const router = express.Router();
-const queueService = require("../services/queueService");
+const Token = require("../models/Token");
 const authMiddleware = require("../middleware/authMiddleware");
 
 /**
- * Join queue (PUBLIC)
+ * Join Queue (PUBLIC)
  */
 router.post("/join", async (req, res) => {
   try {
     const { name } = req.body;
-
     if (!name || !name.trim()) {
       return res.status(400).json({ error: "Name is required" });
     }
 
-    const token = await queueService.joinQueue(name);
+    const lastToken = await Token.findOne().sort({ tokenNumber: -1 });
+    const nextTokenNumber = lastToken ? lastToken.tokenNumber + 1 : 1;
+
+    const token = new Token({
+      name,
+      tokenNumber: nextTokenNumber,
+      status: "waiting",
+    });
+
+    await token.save();
 
     const io = req.app.get("io");
-    io.emit("queueUpdated", await queueService.getQueue());
+    io.emit("queueUpdated", await Token.find().sort({ tokenNumber: 1 }));
 
-    res.json({
-      message: "Joined queue successfully",
-      token,
-    });
+    res.json({ message: "Joined queue", token });
   } catch (error) {
-    console.error("JOIN QUEUE ERROR:", error);
+    console.error(error);
     res.status(500).json({ error: "Failed to join queue" });
   }
 });
 
 /**
- * Get full queue (PUBLIC)
+ * Get Queue (PUBLIC)
  */
 router.get("/", async (req, res) => {
-  const queue = await queueService.getQueue();
+  const queue = await Token.find().sort({ tokenNumber: 1 });
   res.json(queue);
 });
 
 /**
- * Call next token (ADMIN)
+ * Call Next Token (ADMIN)
  */
 router.post("/next", authMiddleware, async (req, res) => {
-  try {
-    const token = await queueService.callNextToken();
-
-    const io = req.app.get("io");
-    io.emit("queueUpdated", await queueService.getQueue());
-
-    res.json({ token });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  const currentServing = await Token.findOne({ status: "serving" });
+  if (currentServing) {
+    currentServing.status = "completed";
+    await currentServing.save();
   }
-});
 
-/**
- * Skip current token (ADMIN)
- */
-router.post("/skip", authMiddleware, async (req, res) => {
-  try {
-    const token = await queueService.skipCurrentToken();
+  const nextWaiting = await Token.findOne({ status: "waiting" }).sort({
+    tokenNumber: 1,
+  });
 
-    const io = req.app.get("io");
-    io.emit("queueUpdated", await queueService.getQueue());
+  if (!nextWaiting) return res.json({ message: "No waiting tokens" });
 
-    res.json({ token });
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-/**
- * Clear queue (ADMIN)
- */
-router.delete("/clear", authMiddleware, async (req, res) => {
-  await queueService.clearQueue();
+  nextWaiting.status = "serving";
+  await nextWaiting.save();
 
   const io = req.app.get("io");
-  io.emit("queueUpdated", []);
+  io.emit("queueUpdated", await Token.find().sort({ tokenNumber: 1 }));
 
-  res.json({ message: "Queue cleared successfully" });
+  res.json(nextWaiting);
+});
+
+/**
+ * Skip Current Token (ADMIN)
+ */
+router.post("/skip", authMiddleware, async (req, res) => {
+  const currentServing = await Token.findOne({ status: "serving" });
+  if (!currentServing) {
+    return res.status(400).json({ error: "No serving token" });
+  }
+
+  currentServing.status = "skipped";
+  await currentServing.save();
+
+  const io = req.app.get("io");
+  io.emit("queueUpdated", await Token.find().sort({ tokenNumber: 1 }));
+
+  res.json(currentServing);
+});
+
+/**
+ * Clear Queue (ADMIN)
+ */
+router.delete("/clear", authMiddleware, async (req, res) => {
+  await Token.deleteMany({});
+  const io = req.app.get("io");
+  io.emit("queueUpdated", []);
+  res.json({ message: "Queue cleared" });
+});
+
+/**
+ * Queue Stats (ADMIN)
+ */
+router.get("/stats", authMiddleware, async (req, res) => {
+  const total = await Token.countDocuments();
+  const waiting = await Token.countDocuments({ status: "waiting" });
+  const serving = await Token.countDocuments({ status: "serving" });
+  const completed = await Token.countDocuments({ status: "completed" });
+  const skipped = await Token.countDocuments({ status: "skipped" });
+
+  res.json({ total, waiting, serving, completed, skipped });
 });
 
 module.exports = router;

@@ -1,21 +1,19 @@
 const express = require("express");
 const cors = require("cors");
 
+const queueRoutes = require("./routes/queue");
+const authRoutes = require("./routes/auth");
+const healthRoutes = require("./routes/health");
+const settingsRoutes = require("./routes/settings");
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
-app.use(cors({
-    origin: "*",
-    methods: ["GET", "POST", "DELETE"],
-  }));
 
-
-const healthRoute = require("./routes/health");
-const queueRoute = require("./routes/queue");
-const authRoute = require("./routes/auth");
-
-app.use("/", healthRoute);
-app.use("/queue", queueRoute);
-app.use("/auth", authRoute);
+app.use("/queue", queueRoutes);
+app.use("/auth", authRoutes);
+app.use("/health", healthRoutes);
+app.use("/settings", settingsRoutes);
 
 module.exports = app;
